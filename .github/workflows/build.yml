@@ -8,45 +8,30 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
-      - run: flutter create --project-name shiro_v32 app
-      - run: |
-          cat > app/pubspec.yaml << 'EOF'
-          name: shiro_v32
-          description: SHIRO v3.2
-          version: 3.2.0+1
-          environment:
-            sdk: '>=3.0.0 <4.0.0'
-          dependencies:
-            flutter:
-              sdk: flutter
-            flutter_tts: ^4.0.2
-          flutter:
-            uses-material-design: true
-          EOF
-      - run: |
-          cat > app/lib/main.dart << 'EOF'
+      - name: Create app
+        run: flutter create --project-name shiro_v32 app --platforms=android
+      - name: Make main.dart
+        run: |
+          cat > app/lib/main.dart << 'ENDDART'
           import 'package:flutter/material.dart';
           import 'package:flutter_tts/flutter_tts.dart';
           void main() => runApp(MaterialApp(home: Shiro()));
-          class Shiro extends StatefulWidget { @override State<Shiro> createState() => _ShiroState(); }
-          class _ShiroState extends State<Shiro> {
+          class Shiro extends StatefulWidget { @override State<Shiro> createState() => _S(); }
+          class _S extends State<Shiro> {
             final tts = FlutterTts();
-            String msg = "SHIRO v3.2 pronto Washington!";
-            @override void initState(){ super.initState(); tts.speak(msg); }
             @override Widget build(BuildContext context){
-              return Scaffold(backgroundColor: Colors.black, body: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              return Scaffold(backgroundColor: Colors.black, body: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children:[
                 Icon(Icons.smart_toy, size: 100, color: Colors.cyan),
-                Text("SHIRO v3.2", style: TextStyle(color: Colors.cyan, fontSize: 30)),
-                SizedBox(height:20),
-                Text(msg, style: TextStyle(color: Colors.white)),
-                SizedBox(height:30),
-                ElevatedButton(onPressed: ()=> tts.speak(msg), child: Text("FALAR"))
+                Text("SHIRO v3.2", style: TextStyle(color: Colors.cyan, fontSize: 32)),
+                SizedBox(height: 20),
+                ElevatedButton(onPressed: (){ tts.speak("SHIRO v3.2 pronto Washington!"); }, child: Text("FALAR"))
               ])));
             }
           }
-          EOF
-      - run: cd app && flutter pub get && flutter build apk --release
+          ENDDART
+      - run: cd app && flutter pub add flutter_tts && flutter pub get
+      - run: cd app && flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
           name: SHIRO-v32-APK
-          path: app/build/app/outputs/flutter-apk/*.apk
+          path: app/build/app/outputs/flutter-apk/app-release.apk
